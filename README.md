@@ -10,8 +10,9 @@ Itens in this project:
 - `logger_test.py`: .py from using loggins for testings and example case;
 
 ## How Use:
-First, using `git clone git@github.com:joannescode/devops-loggings.git `command in your terminal.
-Second, import class from library and using according to your need (read docstrings in class).
+- First, using `git clone git@github.com:joannescode/devops-loggings.git `command in your terminal.
+- Second, import class from library and using according to your need (read docstrings in class).
+
 *Note: Is necessary created your folder for save logs registers.*
 
 ### Logs text (Examples):
