@@ -1,7 +1,7 @@
 # DevOps Series: Loggings Library
 Library created to practice knowledge of loggins used in DevOps.
 
-## What makes up this project
+## What makes up this project:
 This project used personalized loggins fuctions for aplicattion in others projects.
 
 Itens in this project:
