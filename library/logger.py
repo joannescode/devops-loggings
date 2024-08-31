@@ -23,33 +23,6 @@ class LoggerForDevOps:
         self.path_logs = path_logs
         self.logger.handlers = []
 
-    # def _not_has_handlers(self, console=None, file=None) -> None:
-    #    """
-    #    Verifica se os handlers de console (StreamHandler) e arquivo (FileHandler) já estão presentes.
-    #
-    #    Essa função evita a duplicação de código ao checar se os handlers de console e arquivo
-    #    já foram adicionados ao logger, evitando que múltiplas instâncias de `StreamHandler` ou `FileHandler`
-    #    sejam associadas ao mesmo logger.
-    #
-    #    Args:
-    #        console (logging.StreamHandler, optional): Instância de `StreamHandler` a ser adicionada ao logger,
-    #                                                   se ainda não estiver presente. Padrão é None.
-    #        file (logging.FileHandler, optional): Instância de `FileHandler` a ser adicionada ao logger,
-    #                                              se ainda não estiver presente. Padrão é None.
-    #
-    #    Comportamento:
-    #        - Se `console` for passado e o logger não possuir um `StreamHandler`, o handler será adicionado.
-    #        - Se `file` for passado e o logger não possuir um `FileHandler`, o handler será adicionado.
-    #    """
-    #    if console and not any(
-    #        isinstance(h, logging.StreamHandler) for h in self.logger.handlers
-    #    ):
-    #        self.logger.addHandler(console)
-    #    if file and not any(
-    #        isinstance(h, logging.FileHandler) for h in self.logger.handlers
-    #    ):
-    #        self.logger.addHandler(file)
-    #
     def _get_file_handler(
         self, filename: str, formatter: logging.Formatter
     ) -> logging.FileHandler:
