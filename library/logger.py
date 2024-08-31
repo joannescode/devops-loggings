@@ -19,37 +19,38 @@ class LoggerForDevOps:
             path_logs (str): Caminho especificado para armazenar os logs.
         """
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.DEBUG)  # Global level is DEBUG, capturing all logs
         self.path_logs = path_logs
+        self.logger.handlers = []
 
-    def not_has_handlers(self, console=None, file=None) -> None:
-        """
-        Verifica se os handlers de console (StreamHandler) e arquivo (FileHandler) já estão presentes.
-
-        Essa função evita a duplicação de código ao checar se os handlers de console e arquivo
-        já foram adicionados ao logger, evitando que múltiplas instâncias de `StreamHandler` ou `FileHandler`
-        sejam associadas ao mesmo logger.
-
-        Args:
-            console (logging.StreamHandler, optional): Instância de `StreamHandler` a ser adicionada ao logger,
-                                                       se ainda não estiver presente. Padrão é None.
-            file (logging.FileHandler, optional): Instância de `FileHandler` a ser adicionada ao logger,
-                                                  se ainda não estiver presente. Padrão é None.
-
-        Comportamento:
-            - Se `console` for passado e o logger não possuir um `StreamHandler`, o handler será adicionado.
-            - Se `file` for passado e o logger não possuir um `FileHandler`, o handler será adicionado.
-        """
-        if console and not any(
-            isinstance(h, logging.StreamHandler) for h in self.logger.handlers
-        ):
-            self.logger.addHandler(console)
-        if file and not any(
-            isinstance(h, logging.FileHandler) for h in self.logger.handlers
-        ):
-            self.logger.addHandler(file)
-
-    def get_file_handler(
+    # def _not_has_handlers(self, console=None, file=None) -> None:
+    #    """
+    #    Verifica se os handlers de console (StreamHandler) e arquivo (FileHandler) já estão presentes.
+    #
+    #    Essa função evita a duplicação de código ao checar se os handlers de console e arquivo
+    #    já foram adicionados ao logger, evitando que múltiplas instâncias de `StreamHandler` ou `FileHandler`
+    #    sejam associadas ao mesmo logger.
+    #
+    #    Args:
+    #        console (logging.StreamHandler, optional): Instância de `StreamHandler` a ser adicionada ao logger,
+    #                                                   se ainda não estiver presente. Padrão é None.
+    #        file (logging.FileHandler, optional): Instância de `FileHandler` a ser adicionada ao logger,
+    #                                              se ainda não estiver presente. Padrão é None.
+    #
+    #    Comportamento:
+    #        - Se `console` for passado e o logger não possuir um `StreamHandler`, o handler será adicionado.
+    #        - Se `file` for passado e o logger não possuir um `FileHandler`, o handler será adicionado.
+    #    """
+    #    if console and not any(
+    #        isinstance(h, logging.StreamHandler) for h in self.logger.handlers
+    #    ):
+    #        self.logger.addHandler(console)
+    #    if file and not any(
+    #        isinstance(h, logging.FileHandler) for h in self.logger.handlers
+    #    ):
+    #        self.logger.addHandler(file)
+    #
+    def _get_file_handler(
         self, filename: str, formatter: logging.Formatter
     ) -> logging.FileHandler:
         """
@@ -86,11 +87,14 @@ class LoggerForDevOps:
             - A mensagem será formatada com o nível de log.
             - Se o `StreamHandler` ainda não tiver sido adicionado ao logger, ele será adicionado e a mensagem será registrada.
         """
-        info_console_handler = logging.StreamHandler()
+        info_console_handler = logging.StreamHandler()  # Only StreamHandler for console
         formatter_info_message = logging.Formatter("{levelname} - {message}", style="{")
         info_console_handler.setFormatter(formatter_info_message)
 
-        self.not_has_handlers(console=info_console_handler)
+        self.logger.handlers = [
+            h for h in self.logger.handlers if not isinstance(h, logging.StreamHandler)
+        ]
+        self.logger.addHandler(info_console_handler)
         self.logger.info(message)
 
     def logging_debug(self, message: str) -> None:
@@ -110,11 +114,14 @@ class LoggerForDevOps:
         formatter_debug_message = logging.Formatter(
             "{levelname} - {message} - {asctime}", style="{"
         )
-        debug_file_handler = self.get_file_handler(
-            "debug_and_warning.log", formatter_debug_message
+        debug_file_handler = self._get_file_handler(
+            "debug.log", formatter_debug_message
         )
 
-        self.not_has_handlers(file=debug_file_handler)
+        self.logger.handlers = [
+            h for h in self.logger.handlers if not isinstance(h, logging.StreamHandler)
+        ]
+        self.logger.addHandler(debug_file_handler)
         self.logger.debug(message)
 
     def logging_warning(self, message: str) -> None:
@@ -136,14 +143,17 @@ class LoggerForDevOps:
         formatter_warning_message = logging.Formatter(
             "{levelname} - {message} - {asctime}", style="{"
         )
-        warning_file_handler = self.get_file_handler(
-            "debug_and_warning.log", formatter_warning_message
+        warning_file_handler = self._get_file_handler(
+            "warning.log", formatter_warning_message
         )
 
-        self.not_has_handlers(file=warning_file_handler)
-        self.logger.warning(message, exc_info=True)
+        self.logger.handlers = [
+            h for h in self.logger.handlers if not isinstance(h, logging.StreamHandler)
+        ]
+        self.logger.addHandler(warning_file_handler)
+        self.logger.warning(message)
 
-    def logging_error(self, message: str, exc_info: bool = True) -> None:
+    def logging_error(self, message: str) -> None:
         """
         Registra uma mensagem de nível ERROR em um arquivo de log.
 
@@ -153,8 +163,7 @@ class LoggerForDevOps:
 
         Args:
             message (str): Mensagem a ser registrada no nível ERROR.
-            exc_info (bool, optional): Indica se as informações de exceção devem ser incluídas no log. Padrão é True.
-
+            
         Comportamento:
             - A mensagem será formatada com o nível de log e a data/hora.
             - Se o `FileHandler` ainda não tiver sido adicionado ao logger, ele será adicionado e a mensagem será registrada.
@@ -163,12 +172,15 @@ class LoggerForDevOps:
         formatter_error_message = logging.Formatter(
             "{levelname} - {message} - {asctime}", style="{"
         )
-        error_file_handler = self.get_file_handler(
-            "error_and_critical.log", formatter_error_message
+        error_file_handler = self._get_file_handler(
+            "error.log", formatter_error_message
         )
 
-        self.not_has_handlers(file=error_file_handler)
-        self.logger.error(message, exc_info=exc_info, stack_info=True)
+        self.logger.handlers = [
+            h for h in self.logger.handlers if not isinstance(h, logging.StreamHandler)
+        ]
+        self.logger.addHandler(error_file_handler)
+        self.logger.error(message, exc_info=True, stack_info=True)
 
     def logging_critical(self, message: str) -> None:
         """
@@ -189,9 +201,12 @@ class LoggerForDevOps:
         formatter_critical_message = logging.Formatter(
             "{levelname} - {message} - {asctime}", style="{"
         )
-        critical_file_handler = self.get_file_handler(
-            "error_and_critical.log", formatter_critical_message
+        critical_file_handler = self._get_file_handler(
+            "critical.log", formatter_critical_message
         )
 
-        self.not_has_handlers(file=critical_file_handler)
+        self.logger.handlers = [
+            h for h in self.logger.handlers if not isinstance(h, logging.StreamHandler)
+        ]
+        self.logger.addHandler(critical_file_handler)
         self.logger.critical(message, exc_info=True, stack_info=True)
