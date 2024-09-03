@@ -22,6 +22,9 @@ class LoggerForDevOps:
         self.logger.setLevel(logging.DEBUG)  # Global level is DEBUG, capturing all logs
         self.path_logs = path_logs
         self.logger.handlers = []
+        
+        if not os.path.exists(self.path_logs):
+            os.makedirs(self.path_logs)
 
     def _get_file_handler(
         self, filename: str, formatter: logging.Formatter
